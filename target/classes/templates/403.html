@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="hu" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Hozzáférés megtagadva</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="alert alert-danger">
+                <h1 class="alert-heading">[[${statusCode}]] - [[${statusReason}]]</h1>
+                <p>Hozzáférésed megtagadva az oldalhoz, mivel nincs elég jogosultságod.</p>
+                <ul class="d-table mx-auto text-start">
+                    <li th:each="message : ${errorMessage}" th:utext="${message}"></li>
+                </ul>
+                <a th:href="@{/}" class="btn btn-danger" role="button">Vissza a főoldalra</a>
+                <a th:onclick="history.back()" class="btn btn-warning" role="button">Vissza az előző oldalra</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="rounded-2 bg-dark position-absolute top-0 end-0 ps-2 p-2 m-3 d-flex align-items-center">
+    <!-- Sötét mód kapcsoló -->
+    <div class="form-switch me-3">
+        <input class="form-check-input me-2" type="checkbox" id="theme-toggle">
+        <label class="form-check-label text-white no-theme" for="theme-toggle">Sötét mód</label>
+    </div>
+
+    <!-- Log out gomb -->
+    <div>
+        <a th:href="@{/logout}" class="btn btn-warning m-1 text-white">Log out</a>
+    </div>
+</div>
+<script th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const themeToggleCheckbox = document.getElementById("theme-toggle");
+
+        // Funckió a témaváltáshoz
+        const setTheme = (isDarkMode) => {
+            if (isDarkMode) {
+                document.body.classList.add("bg-dark", "text-white");
+                document.body.classList.remove("bg-light", "text-dark");
+
+                // Modális elemek
+                const modalContents = document.querySelectorAll(".modal-content");
+                modalContents.forEach(modal => {
+                    modal.classList.add("bg-dark", "text-white");
+                    modal.classList.remove("bg-light", "text-dark");
+                });
+
+                const modalHeaders = document.querySelectorAll(".modal-header");
+                modalHeaders.forEach(header => {
+                    header.classList.add("bg-dark", "text-white");
+                    header.classList.remove("bg-light", "text-dark");
+                });
+
+                const modalFooters = document.querySelectorAll(".modal-footer");
+                modalFooters.forEach(footer => {
+                    footer.classList.add("bg-dark", "text-white");
+                    footer.classList.remove("bg-light", "text-dark");
+                });
+            } else {
+                document.body.classList.add("bg-light", "text-dark");
+                document.body.classList.remove("bg-dark", "text-white");
+
+                // Modális elemek
+                const modalContents = document.querySelectorAll(".modal-content");
+                modalContents.forEach(modal => {
+                    modal.classList.add("bg-light", "text-dark");
+                    modal.classList.remove("bg-dark", "text-white");
+                });
+
+                const modalHeaders = document.querySelectorAll(".modal-header");
+                modalHeaders.forEach(header => {
+                    header.classList.add("bg-light", "text-dark");
+                    header.classList.remove("bg-dark", "text-white");
+                });
+
+                const modalFooters = document.querySelectorAll(".modal-footer");
+                modalFooters.forEach(footer => {
+                    footer.classList.add("bg-light", "text-dark");
+                    footer.classList.remove("bg-dark", "text-white");
+                });
+            }
+
+            // Téma checkbox állapotának frissítése
+            themeToggleCheckbox.checked = isDarkMode;
+
+            // Cookie-ba mentés
+            document.cookie = `theme=${isDarkMode ? 'dark' : 'light'}; path=/; max-age=${60 * 60 * 24 * 365}`; // 1 évig tároljuk a cookie-ban
+        };
+
+        // Cookie-ból kiolvassuk az előző téma választást
+        const getThemeFromCookie = () => {
+            const themeCookie = document.cookie.split('; ').find(row => row.startsWith('theme='));
+            return themeCookie ? themeCookie.split('=')[1] : null;
+        };
+
+        // Téma betöltése
+        const savedTheme = getThemeFromCookie();
+        if (savedTheme) {
+            setTheme(savedTheme === 'dark');
+        } else {
+            // Ha nincs mentett téma, akkor az eszköz preferenciája alapján állítsuk be
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            setTheme(prefersDark);
+        }
+
+        // Checkbox változás figyelése
+        themeToggleCheckbox.addEventListener("change", function () {
+            const isDarkMode = themeToggleCheckbox.checked;
+            setTheme(isDarkMode);
+            document.cookie = `theme=${isDarkMode ? "dark" : "light"}; path=/; max-age=${60 * 60 * 24 * 365}`; // 1 évig tároljuk a cookie-ban
+        });
+    });
+
+</script>
+</html>

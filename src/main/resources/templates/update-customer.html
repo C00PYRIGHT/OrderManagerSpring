@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="hu" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Vásárló frissítése</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container my-5 ">
+    <h1 class="text-center">Vásárló frissítése</h1>
+    <div class="card shadow my-5 bg-dark" style="max-width: 400px; margin: auto;">
+        <div class="card-body">
+            <form action="/update-customer" method="post">
+                <div class="mb-3">
+                    <input type="hidden" id="id" name="id" class="form-control" th:value="${customer.id}"required>
+
+                    <label for="name" class="form-label">Vásárló neve</label>
+                    <input type="text" id="name" name="name" class="form-control"  th:value="${customer.name}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">E-mail</label>
+                    <input type="text" id="email" name="email" class="form-control"th:value="${customer.email}">
+                </div>
+                <div class="mb-3">
+                    <label for="customerId" class="form-label">Vásárló UID (Üres = regenerate)</label>
+                    <input type="text" id="customerId" name="customerId" class="form-control" th:value="${customer.customerId}" required>
+                </div>
+
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Módosítás</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<div class="rounded-2 bg-dark position-absolute top-0 end-0 ps-2 p-2 m-3 d-flex align-items-center">
+    <!-- Sötét mód kapcsoló -->
+    <div class="form-switch me-3">
+        <input class="form-check-input me-2" type="checkbox" id="theme-toggle">
+        <label class="form-check-label text-white no-theme" for="theme-toggle">Sötét mód</label>
+    </div>
+
+    <!-- Log out gomb -->
+    <div>
+        <a th:href="@{/logout}" class="btn btn-warning m-1 text-white">Log out</a>
+    </div>
+</div>
+
+<script th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const themeToggleCheckbox = document.getElementById("theme-toggle");
+
+        // Funckió a témaváltáshoz
+        const setTheme = (isDarkMode) => {
+            // Body elem módosítása
+            if (isDarkMode) {
+                document.body.classList.add("bg-dark", "text-white");
+                document.body.classList.remove("bg-light", "text-dark");
+
+                /* // Minden gomb színének módosítása
+                 const buttons = document.querySelectorAll("button, .btn");
+                 buttons.forEach(button => {
+                   button.classList.add("btn-dark");
+                   button.classList.remove("btn-light");
+                 });*/
+
+                // Minden input mező és label módosítása
+                const inputs = document.querySelectorAll("input");
+                inputs.forEach(input => {
+                    input.classList.add("text-white");
+                    input.classList.remove("text-dark");
+                    input.classList.add("bg-dark");
+                    input.classList.remove("bg-white");
+                });
+
+                const labels = document.querySelectorAll("label");
+                labels.forEach(label => {
+                    label.classList.add("text-white");
+                    label.classList.remove("text-dark");
+                });
+
+                // Minden egyéb elem módosítása, amely a színeken változtatható
+                const otherElements = document.querySelectorAll(".bg-light, .text-dark");
+                otherElements.forEach(element => {
+                    element.classList.add("bg-dark", "text-white");
+                    element.classList.remove("bg-light", "text-dark");
+                });
+
+            } else {
+                document.body.classList.add("bg-light", "text-dark");
+                document.body.classList.remove("bg-dark", "text-white");
+
+                /*        // Minden gomb színének módosítása
+                        const buttons = document.querySelectorAll("button, .btn");
+                        buttons.forEach(button => {
+                          button.classList.add("btn-light");
+                          button.classList.remove("btn-dark");
+                        });*/
+
+                // Minden div elem színének módosítása
+                const divs = document.querySelectorAll("div");
+                divs.forEach(div => {
+                    if (isDarkMode) {
+                        div.classList.add("bg-dark", "text-white");
+                        div.classList.remove("bg-light", "text-dark");
+                    } else {
+                        div.classList.add("bg-light", "text-dark");
+                        div.classList.remove("bg-dark", "text-white");
+                    }
+                });
+
+                // Minden input mező és label módosítása
+                const inputs = document.querySelectorAll("input");
+                inputs.forEach(input => {
+                    input.classList.add("text-dark");
+                    input.classList.remove("text-white");
+                    input.classList.add("bg-white");
+                    input.classList.remove("bg-dark");
+                });
+
+                const labels = document.querySelectorAll("label");
+                labels.forEach(label => {
+                    label.classList.add("text-dark");
+                    label.classList.remove("text-white");
+                });
+
+                // Minden egyéb elem módosítása, amely a színeken változtatható
+                const otherElements = document.querySelectorAll(".bg-dark, .text-white");
+                otherElements.forEach(element => {
+                    element.classList.add("bg-light", "text-dark");
+                    element.classList.remove("bg-dark", "text-white");
+                });
+            }
+
+            // Téma checkbox állapotának frissítése
+            themeToggleCheckbox.checked = isDarkMode;
+
+            // Cookie-ba mentés
+            document.cookie = `theme=${isDarkMode ? 'dark' : 'light'}; path=/; max-age=${60 * 60 * 24 * 365}`; // 1 évig tároljuk a cookie-ban
+        };
+
+
+
+        // Cookie-ból kiolvassuk az előző téma választást
+        const getThemeFromCookie = () => {
+            const themeCookie = document.cookie.split('; ').find(row => row.startsWith('theme='));
+            return themeCookie ? themeCookie.split('=')[1] : null;
+        };
+
+        // Téma betöltése
+        const savedTheme = getThemeFromCookie();
+        if (savedTheme) {
+            setTheme(savedTheme === 'dark');
+        } else {
+            // Ha nincs mentett téma, akkor az eszköz preferenciája alapján állítsuk be
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            setTheme(prefersDark);
+        }
+
+        // Checkbox változás figyelése
+        themeToggleCheckbox.addEventListener("change", function () {
+            const isDarkMode = themeToggleCheckbox.checked;
+            setTheme(isDarkMode);
+            document.cookie = `theme=${isDarkMode ? "dark" : "light"}; path=/; max-age=${60 * 60 * 24 * 365}`; // 1 évig tároljuk a cookie-ban
+        });
+    });
+
+</script>
+
+</body>
+</html>
